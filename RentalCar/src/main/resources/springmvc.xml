@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc
+                http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context
+                http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--扫描controller-->
+    <context:component-scan base-package="com.hkgroup.sys.controller"/>
+    <context:component-scan base-package="com.hkgroup.bus.controller"/>
+    <context:component-scan base-package="com.hkgroup.stat.controller"/>
+    <!--配置映射器和适配器-->
+    <mvc:annotation-driven/>
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/view/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <!--配置静态⽂件放⾏-->
+    <!--会在Spring MVC上下⽂中定义⼀个
+   org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler，
+   它会像⼀个检查员，对进⼊DispatcherServlet的URL进⾏筛查，如果发现
+   是静态资源的请求，就将该请求转由Web应⽤服务器默认的Servlet处理，如果不是静态
+   资源的请求，才由DispatcherServlet继续处理。-->
+    <mvc:default-servlet-handler/>
+</beans>
