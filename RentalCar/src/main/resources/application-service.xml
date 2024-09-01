@@ -18,10 +18,11 @@
     <context:component-scan base-package="com.hkgroup.sys.service.impl"/>
     <context:component-scan base-package="com.hkgroup.bus.service.impl"/>
     <context:component-scan base-package="com.hkgroup.stat.service.impl"/>
-    <!-- 1. 声明事务管理器 -->
+    <!-- 1,声明事务管理器 -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
+
     <!-- 2. 声明事务的传播特性 也就是通知 -->
     <tx:advice id="advise" transaction-manager="transactionManager">
         <tx:attributes>

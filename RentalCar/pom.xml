@@ -17,7 +17,7 @@
         <spring.version>5.0.2.RELEASE</spring.version>
         <slf4j.version>1.6.6</slf4j.version>
         <log4j.version>1.2.12</log4j.version>
-        <mysql.version>5.1.6</mysql.version>
+        <mysql.version>8.4.0</mysql.version>
         <mybatis.version>3.4.5</mybatis.version>
     </properties>
 
@@ -76,8 +76,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
             <version>${mysql.version}</version>
         </dependency>
         <dependency>

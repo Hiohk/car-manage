@@ -1,6 +1,6 @@
 package com.hkgroup.sys.controller;
 
-import com.hkgroup.sys.service.IAccountService;
+import com.hkgroup.sys.service.AccountService;
 import com.hkgroup.sys.utils.ResultObj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/account")
 public class AccountController {
     @Autowired
-    private IAccountService service;
+    private AccountService service;
 
     @RequestMapping("/transfer")
     @ResponseBody

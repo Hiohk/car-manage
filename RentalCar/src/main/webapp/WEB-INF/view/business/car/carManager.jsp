@@ -194,7 +194,68 @@
 
 <script src="${pageContext.request.contextPath}/resources/layui/layui.js"></script>
 <script type="text/javascript">
-
+    var tableIns;
+    layui.use(['jquery', 'layer', 'form', 'table', 'upload'],
+        function () {
+            var $ = layui.jquery;
+            var layer = layui.layer;
+            var form = layui.form;
+            var table = layui.table;
+            var dtree = layui.dtree;
+            var upload = layui.upload;
+            //渲染数据表格
+            tableIns = table.render({
+                elem: '#carTable', //渲染的⽬标对象
+                url: '${pageContext.request.contextPath}/car/loadAllCar.action', //数据接⼝
+                title: '⻋辆数据表',//数据导出来的标题
+                toolbar: "#carToolBar", //表格的⼯具条
+                height: 'full-205',
+                cellMinWidth: 100, //设置列的最⼩默认宽度
+                page: true, //是否启⽤分⻚
+                cols: [[ //列表数据
+                    {type: 'checkbox', fixed: 'left'},
+                    {field: 'carnumber', title: '⻋牌号', align: 'center', width: '110'},
+                    {field: 'cartype', title: '⻋辆类型', align: 'center', width: '90'},
+                    {field: 'color', title: '⻋辆颜⾊', align: 'center', width: '90'},
+                    {field: 'price', title: '⻋辆价格', align: 'center', width: '90'},
+                    {field: 'rentprice', title: '出租价格', align: 'center', width: '90'},
+                    {field: 'deposit', title: '出租押⾦', align: 'center', width: '90'},
+                    {
+                        field: 'isrenting', title: '出租状态', align: 'center', width: '90', templet: function (d) {
+                            return d.isrenting == '1' ? '<font color=blue>已出租</font>' : '<font color=red>未出租</font >';
+                        }
+                    },
+                    {field: 'description', title: '⻋辆描述', align: 'center', width: '150'},
+                    {
+                        field: 'carimg', title: '缩略图', align: 'center', width: '80', templet: function (d) {
+                            return "<img width=40 height=40 src = ${pageContext.request.contextPath}/file/downloadShowFile.action ? path = " + d.carimg + " / > ";
+                        }
+                    },
+                    {field: 'createtime', title: '录⼊时间', align: 'center', width: '165'},
+                    {fixed: 'right', title: '操作', toolbar: '#carBar', align: 'center', width: '190'}
+                ]],
+                done:
+                    function (data, curr, count) {
+                        //不是第⼀⻚时，如果当前返回的数据为0那么就返回上⼀⻚
+                        if (data.data.length == 0 && curr != 1) {
+                            tableIns.reload({
+                                page: {
+                                    curr: curr - 1
+                                }
+                            })
+                        }
+                    }
+            });
+            //模糊查询
+            $("#doSearch").click(function () {
+                var params = $("#searchFrm").serialize();
+                // alert(params);
+                tableIns.reload({
+                    url: "${pageContext.request.contextPath}/car/loadAllCar.action?" + params,
+                    page: {curr: 1}
+                })
+            });
+        });
 
 </script>
 </body>

@@ -1,7 +1,7 @@
 package com.hkgroup.sys.service.impl;
 
 import com.hkgroup.sys.mapper.AccountMapper;
-import com.hkgroup.sys.service.IAccountService;
+import com.hkgroup.sys.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional //事务控制
-public class AccountService implements IAccountService {
+public class AccountServiceImpl implements AccountService {
     @Autowired
     public AccountMapper mapper;
 

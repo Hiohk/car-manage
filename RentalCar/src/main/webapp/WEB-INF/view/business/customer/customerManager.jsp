@@ -105,14 +105,16 @@
             <div class="layui-inline">
                 <label class="layui-form-label">客户姓名:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="custname" lay-verify="required" placeholder="请输入客户姓名" autocomplete="off"
+                    <input type="text" name="custname" lay-verify="required" placeholder="请输入客户姓名"
+                           autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
             <div class="layui-inline">
                 <label class="layui-form-label">身份证号:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="identity" lay-verify="required" placeholder="请输入客户姓名" autocomplete="off"
+                    <input type="text" name="identity" lay-verify="required" placeholder="请输入客户姓名"
+                           autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
@@ -121,13 +123,15 @@
             <div class="layui-inline">
                 <label class="layui-form-label">客户地址:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="address" placeholder="请输入客户地址" autocomplete="off" class="layui-input">
+                    <input type="text" name="address" placeholder="请输入客户地址" autocomplete="off"
+                           class="layui-input">
                 </div>
             </div>
             <div class="layui-inline">
                 <label class="layui-form-label">客户职业:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="career" placeholder="请输入客户职业" autocomplete="off" class="layui-input">
+                    <input type="text" name="career" placeholder="请输入客户职业" autocomplete="off"
+                           class="layui-input">
                 </div>
             </div>
         </div>
@@ -135,7 +139,8 @@
             <div class="layui-inline">
                 <label class="layui-form-label">客户电话:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="phone" lay-verify="required|phone" placeholder="请输入客户电话" autocomplete="off"
+                    <input type="text" name="phone" lay-verify="required|phone" placeholder="请输入客户电话"
+                           autocomplete="off"
                            class="layui-input">
                 </div>
             </div>
@@ -163,7 +168,152 @@
 
 <script src="${pageContext.request.contextPath}/resources/layui/layui.js"></script>
 <script type="text/javascript">
+    var tableIns;
+    layui.use(['jquery', 'layer', 'form', 'table'], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer;
+        var form = layui.form;
+        var table = layui.table;
+        var dtree = layui.dtree;
 
+        tableIns = table.render({
+            elem: '#customerTable',
+            url: '${pageContext.request.contextPath}/customer/loadAllCustomer.action',
+            title: '客户数据表',
+            toolbar: '#customerToolBar',
+            height: 'full-210',
+            cellMinWidth: 100,
+            page: true,
+            cols: [[
+                {type: 'checkbox', fixed: 'left'},
+                {field: 'custname', title: '客户姓名', align: "center", width: 120},
+                {field: 'identity', title: '身份证号', align: "center", width: 200},
+                {field: 'address', title: '客户地址', align: "center", width: 150},
+                {field: 'phone', title: '客户电话', align: "center", width: 120},
+                {
+                    field: 'sex', title: '性别', align: "center", width: 60, templet: function (d) {
+                        return d.sex == '1' ? '男' : '女'
+                    }
+                },
+                {field: 'createtime', title: '录入时间', align: "center", width: 200},
+                {fixed: 'right', title: '操作', toolbar: '#customerBar', align: "center"}
+            ]],
+            done: function (data, curr, count) {
+                if (data.data.length == 0 && curr != 1) {
+                    tableIns.reload({
+                        page: {
+                            curr: curr - 1
+                        }
+                    });
+                }
+            }
+        });
+
+        $("#doSearch").click(function () {
+            var params = $("#searchFrm").serialize();
+            tableIns.reload({
+                url: '${pageContext.request.contextPath}/customer/loadAllCustomer.action?' + params,
+                page: {curr: 1}
+            });
+        });
+
+        // 监听头部工具栏事件
+        table.on('toolbar(customerTable)', function (obj) {
+            switch (obj.event) {
+                case 'add':
+                    openAddCustomer();
+                    break;
+                case 'deleteBatch':
+                    deleteBatch();
+                    break;
+            }
+        });
+
+        var url;
+
+        function openAddCustomer() {
+            layer.open({
+                type: 1,
+                title: '新增客户',
+                content: $('#saveOrUpdateDiv'),
+                area: ['700px', '320px'],
+                success: function (index) {
+                    $('#dataFrm')[0].reset();
+                    url = '${pageContext.request.contextPath}/customer/addCustomer.action';
+                }
+            })
+        }
+
+        form.on('submit(doSubmit)', function (obj) {
+            //序列化表单数据
+            var params = $("#dataFrm").serialize();
+            $.post(url, params, function (obj) {
+                layer.msg(obj.msg);
+                //关闭弹出层
+                layer.close(mainIndex);
+                //刷新数据 表格
+                tableIns.reload();
+            });
+        });
+
+        // 监听行工具事件
+        table.on('tool(customerTable)', function (obj) {
+            var data = obj.data; //获得当前⾏数据
+            var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的event 参数对应的值）
+            if (layEvent === 'del') { //删除
+                layer.confirm('真的删除【' + data.custname + '】这个客户么？', function (index) {
+                    //向服务端发送删除指令
+
+                    $.post("${pageContext.request.contextPath}/customer/deleteCustomer.action", {identity: data.identity}, function (res) {
+                        layer.msg(res.msg);
+                        //刷新数据表格
+                        tableIns.reload();
+                    })
+                });
+            } else if (layEvent === 'edit') { //编辑
+                //编辑，打开修改界⾯
+                openUpdateCustomer(data);
+            }
+        });
+
+        //打开修改⻚⾯
+        function openUpdateCustomer(data) {
+            mainIndex = layer.open({
+                type: 1,
+                title: '修改客户',
+                content: $("#saveOrUpdateDiv"),
+                area: ['700px', '320px'],
+                success: function (index) {
+                    form.val("dataFrm", data);
+                    url = "${pageContext.request.contextPath}/customer/updateCustomer.action";
+                }
+            });
+        }
+
+        //批量删除
+        function deleteBatch() {
+            //得到选中的数据⾏
+            var checkStatus = table.checkStatus('customerTable');
+            var data = checkStatus.data;
+            // layer.alert(data.length);
+            var params = "";
+            $.each(data, function (i, item) {
+                if (i == 0) {
+                    params += "ids=" + item.identity;
+                } else {
+                    params += "&ids=" + item.identity;
+                }
+            });
+            layer.confirm('真的要删除这些客户么？', function (index) {
+                //向服务端发送删除指令
+                $.post("${pageContext.request.contextPath}/customer/deleteBatchCustomer.action", params, function (res) {
+                    layer.msg(res.msg);
+                    //刷新数据表格
+                    tableIns.reload();
+                })
+            });
+        }
+    });
 </script>
 </body>
 </html>
