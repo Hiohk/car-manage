@@ -40,4 +40,72 @@
             </if>
         </where>
     </select>
+
+    <insert id="insertSelective" parameterType="com.hkgroup.bus.domain.Car">
+        insert into bus_car
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="carnumber != null">
+                carnumber,
+            </if>
+            <if test="cartype != null">
+                cartype,
+            </if>
+            <if test="color != null">
+                color,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="rentprice != null">
+                rentprice,
+            </if>
+            <if test="deposit != null">
+                deposit,
+            </if>
+            <if test="isrenting != null">
+                isrenting,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="carimg != null">
+                carimg,
+            </if>
+            <if test="createtime != null">
+                createtime,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="carnumber != null">
+                #{carnumber,jdbcType=VARCHAR},
+            </if>
+            <if test="cartype != null">
+                #{cartype,jdbcType=VARCHAR},
+            </if>
+            <if test="color != null">
+                #{color,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                #{price,jdbcType=DOUBLE},
+            </if>
+            <if test="rentprice != null">
+                #{rentprice,jdbcType=DOUBLE},
+            </if>
+            <if test="deposit != null">
+                #{deposit,jdbcType=DOUBLE},
+            </if>
+            <if test="isrenting != null">
+                #{isrenting,jdbcType=INTEGER},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="carimg != null">
+                #{carimg,jdbcType=VARCHAR},
+            </if>
+            <if test="createtime != null">
+                #{createtime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
 </mapper>

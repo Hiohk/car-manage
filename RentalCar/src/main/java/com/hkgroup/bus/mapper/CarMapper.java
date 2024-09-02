@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CarMapper {
     List<Car> queryAllCar(CarVo carVo);
+    void insertSelective(CarVo carVo);
 }

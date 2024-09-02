@@ -256,7 +256,27 @@
                 })
             });
         });
+    //监听⾏⼯具事件
+    table.on('tool(carTable)', function (obj) {
+        var data = obj.data; //获得当前⾏数据
+        var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的event参数对应的值）
+        if (layEvent === 'viewImage') { //查看⼤图
+            showCarImage(data);
+        }
+    });
 
+    //查看⼤图
+    function showCarImage(data) {
+        mainIndex = layer.open({
+            type: 1,
+            title: "【" + data.carnumber + '】的⻋辆图⽚',
+            content: $("#viewCarImageDiv"),
+            area: ['750px', '500px'],
+            success: function (index) {
+                $("#view_carimg").attr("src", "${pageContext.request.contextPath}/file/downloadShowFile.action?path=" + data.carimg);
+            }
+        });
+    }
 </script>
 </body>
 </html>

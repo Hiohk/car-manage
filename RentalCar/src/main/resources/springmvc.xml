@@ -23,6 +23,13 @@
         <property name="prefix" value="/WEB-INF/view/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
+    <!--配置⽂件上传-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--设置⽂件名的编码-->
+        <property name="defaultEncoding" value="utf-8"/>
+        <!--配置上传⽂件的⽀持-->
+        <property name="maxUploadSize" value="20971520"/>
+    </bean>
     <!--配置静态⽂件放⾏-->
     <!--会在Spring MVC上下⽂中定义⼀个
    org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler，

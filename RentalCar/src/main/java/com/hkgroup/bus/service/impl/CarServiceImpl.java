@@ -23,4 +23,11 @@ public class CarServiceImpl implements CarService {
         List<Car> data = carMapper.queryAllCar(carVo);
         return new DataGridView(page.getTotal(), data);
     }
+
+    @Override
+    public void addCar(CarVo carVo) {
+        this.carMapper.insertSelective(carVo);
+    }
+
+
 }
