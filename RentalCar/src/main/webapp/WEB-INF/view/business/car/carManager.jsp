@@ -255,28 +255,151 @@
                     page: {curr: 1}
                 })
             });
-        });
-    //监听⾏⼯具事件
-    table.on('tool(carTable)', function (obj) {
-        var data = obj.data; //获得当前⾏数据
-        var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的event参数对应的值）
-        if (layEvent === 'viewImage') { //查看⼤图
-            showCarImage(data);
-        }
-    });
 
-    //查看⼤图
-    function showCarImage(data) {
-        mainIndex = layer.open({
-            type: 1,
-            title: "【" + data.carnumber + '】的⻋辆图⽚',
-            content: $("#viewCarImageDiv"),
-            area: ['750px', '500px'],
-            success: function (index) {
-                $("#view_carimg").attr("src", "${pageContext.request.contextPath}/file/downloadShowFile.action?path=" + data.carimg);
+            //监听⾏⼯具事件
+            table.on('tool(carTable)', function (obj) {
+                var data = obj.data; //获得当前⾏数据
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的event参数对应的值）
+                if (layEvent === 'viewImage') { //查看⼤图
+                    showCarImage(data);
+                }
+            });
+
+            //打开修改⻚⾯
+            function openUpdateCar(data) {
+                mainIndex = layer.open({
+                    type: 1,
+                    title: '修改⻋辆',
+                    content: $("#saveOrUpdateDiv"),
+                    area: ['700px', '480px'],
+                    success: function (index) {
+                        form.val("dataFrm", data);
+                        $("#showCarImg").attr("src", "${pageContext.request.contextPath}/file/downloadShowFile.action?path=" + data.carimg);
+                        url = "${pageContext.request.contextPath}/car/updateCar.action";
+                        $("#carnumber").attr("readonly", "readonly");
+                    }
+                });
             }
-        });
-    }
+
+            //查看⼤图
+            function showCarImage(data) {
+                mainIndex = layer.open({
+                    type: 1,
+                    title: "【" + data.carnumber + '】的⻋辆图⽚',
+                    content: $("#viewCarImageDiv"),
+                    area: ['750px', '500px'],
+                    success: function (index) {
+                        $("#view_carimg").attr("src", "${pageContext.request.contextPath}/file/downloadShowFile.action?path=" + data.carimg);
+                    }
+                });
+            }
+
+            //监听头部⼯具栏事件
+            table.on("toolbar(carTable)", function (obj) {
+                switch (obj.event) {
+                    case 'add':
+                        openAddCar();
+                        break;
+                    case 'deleteBatch':
+                        deleteBatch();
+                        break;
+                }
+            });
+
+            //批量删除
+            function deleteBatch() {
+                //得到选中的数据⾏
+                var checkStatus = table.checkStatus('carTable');
+                var data = checkStatus.data;
+                var params = "";
+                $.each(data, function (i, item) {
+                    if (i == 0) {
+                        params += "ids=" + item.carnumber;
+                    } else {
+                        params += "&ids=" + item.carnumber;
+                    }
+                });
+                layer.confirm('真的要删除这些⻋辆么？', function (index) {
+                    //向服务端发送删除指令
+                    $.post("${pageContext.request.contextPath}/car/deleteBatchCar.action", params, function (res) {
+                        layer.msg(res.msg);
+                        //刷新数据表格
+                        tableIns.reload();
+                    })
+                });
+            }
+
+            //打开添加⻚⾯
+            function openAddCar() {
+                mainIndex = layer.open({
+                    type: 1,
+                    title: '添加⻋辆',
+                    content: $("#saveOrUpdateDiv"),
+                    area: ['700px', '480px'],
+                    success: function (index) {
+                        //清空表单数据
+                        $("#dataFrm")[0].reset();
+                        //设置默认图⽚
+                        $("#showCarImg").attr("src", "${pageContext.request.contextPath}/file/downloadShowFile.action?path=images/defaultcarimage.jpg");
+                        $("#carimg").val("images/defaultcarimage.jpg");
+                        url = "${pageContext.request.contextPath}/car/addCar.action";
+                        $("#carnumber").removeAttr("readonly", "readonly");
+                    }
+                });
+            }
+
+            //保存
+            form.on("submit(doSubmit)", function (obj) {
+                //序列化表单数据
+                var params = $("#dataFrm").serialize();
+                $.post(url, params, function (obj) {
+                    layer.msg(obj.msg);
+                    //关闭弹出层
+                    layer.close(mainIndex)
+                    //刷新数据 表格
+                    tableIns.reload();
+                })
+            });
+
+            //上传图⽚
+            upload.render({
+                elem: '#carimgDiv',
+                url: '${pageContext.request.contextPath}/file/uploadFile.action',
+                method: "post", //此处是为了演示之⽤，实际使⽤中请将此删除，默认⽤post⽅式提交
+                acceptMime: 'images/*',
+                field: "mf",
+                done: function (res, index, upload) {
+                    $('#showCarImg').attr('src', "${pageContext.request.contextPath}/file/downloadShowFile.action?path=" + res.data.src);
+                    $('#carimg').val(res.data.src);
+                    $('#carimgDiv').css("background", "#fff");
+                }
+            });
+            //编写⾏⼯具栏监听
+            table.on('tool(carTable)', function (obj) {
+                //获取当前⾏数数据
+                var data = obj.data;
+                console.log(data)
+                if (obj.event == 'viewImage') {
+                    showCarImage(data);
+                } else if (obj.event == 'del') {
+                    layer.confirm("是否确认删除【" + data.carnumber + "】这个⻋辆？", function (index) {
+                        //发送ajax删除
+
+                        $.get("${pageContext.request.contextPath}/car/deleteCar.action",
+                            {"carnumber": data.carnumber}, function (result) {
+                                layer.msg(result.msg);
+                                //刷新表格数据
+                                tableIns.reload();
+                            })
+                    })
+                } else if (obj.event == 'edit') {
+                    //编辑，打开修改界⾯
+                    openUpdateCar(data);
+                }
+            });
+
+        })
+    ;
 </script>
 </body>
 </html>

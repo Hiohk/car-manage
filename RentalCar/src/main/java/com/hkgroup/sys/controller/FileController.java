@@ -34,7 +34,7 @@ public class FileController {
         // 得到当前⽇期作为⽂件夹名称
         String dirName = RandomUtils.getCurrentDateForString();
         // 构造⽂件夹对象
-        File dirFile = new File(parentPath, dirName);
+        File dirFile = new File(parentPath, dirName); 
         if (!dirFile.exists()) {
             dirFile.mkdirs();// 创建⽂件夹
         }

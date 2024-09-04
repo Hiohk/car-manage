@@ -15,7 +15,8 @@
         <result column="createtime" jdbcType="TIMESTAMP" property="createtime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        carnumber, cartype, color, price, rentprice, deposit, isrenting, description,carimg,createtime
+        carnumber
+        , cartype, color, price, rentprice, deposit, isrenting, description,carimg,createtime
     </sql>
     <!-- 查询 -->
     <select id="queryAllCar" resultMap="BaseResultMap">
@@ -108,4 +109,48 @@
             </if>
         </trim>
     </insert>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+        delete
+        from bus_car
+        where carnumber = #{carnumber, jdbcType=VARCHAR}
+    </delete>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from bus_car
+        where carnumber = #{carnumber, jdbcType=VARCHAR}
+    </select>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.hkgroup.bus.domain.Car">
+        update bus_car
+        <set>
+            <if test="cartype != null">
+                cartype = #{cartype,jdbcType=VARCHAR},
+            </if>
+            <if test="color !=null">
+                color = #{color,jdbcType=VARCHAR},
+            </if>
+            <if test="price != null">
+                price=#{price,jdbcType=DOUBLE},
+            </if>
+            <if test="rentprice">
+                rentprice=#{rentprice,jdbcType=DOUBLE},
+            </if>
+            <if test="isrenting != null">
+                isrenting = #{isrenting,jdbcType=INTEGER},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="carimg != null">
+                carimg = #{carimg,jdbcType=VARCHAR},
+            </if>
+            <if test="createtime != null">
+                createtime = #{createtime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where carnumber = #{carnumber,jdbcType=VARCHAR}
+    </update>
 </mapper>

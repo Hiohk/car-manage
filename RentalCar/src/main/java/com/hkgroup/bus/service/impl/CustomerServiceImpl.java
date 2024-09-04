@@ -2,6 +2,7 @@ package com.hkgroup.bus.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.hkgroup.bus.domain.Car;
 import com.hkgroup.bus.domain.Customer;
 import com.hkgroup.bus.mapper.CustomerMapper;
 import com.hkgroup.bus.service.CustomerService;
@@ -53,6 +54,4 @@ public class CustomerServiceImpl implements CustomerService {
             this.deleteCustomer(identity);
         }
     }
-
-
 }

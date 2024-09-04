@@ -8,4 +8,9 @@ import java.util.List;
 public interface CarMapper {
     List<Car> queryAllCar(CarVo carVo);
     void insertSelective(CarVo carVo);
+    Car selectByPrimaryKey(String carnumber);
+    int deleteByPrimaryKey(String carnumber);
+
+    void updateByPrimaryKeySelective(CarVo carVo);
+
 }
