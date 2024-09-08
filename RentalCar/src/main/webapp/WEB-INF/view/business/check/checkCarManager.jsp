@@ -89,7 +89,7 @@
             <div class="layui-inline">
                 <label class="layui-form-label">存在问题:</label>
                 <div class="layui-input-inline" style="padding: 5px;width: 280px">
-                    <input type="text" name="problem" id="problem" required  lay-verify="required" autocomplete="off"
+                    <input type="text" name="problem" id="problem" required lay-verify="required" autocomplete="off"
                            class="layui-input layui-input-inline"
                            placeholder="请输入存在的问题" style="height: 30px;border-radius: 10px;width: 280px">
                 </div>
@@ -97,7 +97,7 @@
             <div class="layui-inline">
                 <label class="layui-form-label">赔付金额:</label>
                 <div class="layui-input-inline" style="padding: 5px;width: 280px">
-                    <input type="text" name="paymoney" id="paymoney" required  lay-verify="required" autocomplete="off"
+                    <input type="text" name="paymoney" id="paymoney" required lay-verify="required" autocomplete="off"
                            class="layui-input layui-input-inline"
                            placeholder="请输入赔付金额" style="height: 30px;border-radius: 10px;width: 280px">
                 </div>
@@ -105,7 +105,7 @@
             <div class="layui-inline">
                 <label class="layui-form-label">检查时间:</label>
                 <div class="layui-input-inline" style="padding: 5px;width: 280px">
-                    <input type="text" name="checkdate" id="checkdate" required  lay-verify="required"
+                    <input type="text" name="checkdate" id="checkdate" required lay-verify="required"
                            class="layui-input layui-input-inline"
                            placeholder="请输入检查时间" style="height: 30px;border-radius: 10px;width: 280px">
                 </div>
@@ -114,7 +114,8 @@
         <div class="layui-form-item layui-form-text">
             <label class="layui-form-label">问题描述:</label>
             <div class="layui-input-block">
-                <textarea name="checkdesc" placeholder="请输入问题描述" required  lay-verify="required" class="layui-textarea"></textarea>
+                <textarea name="checkdesc" placeholder="请输入问题描述" required lay-verify="required"
+                          class="layui-textarea"></textarea>
             </div>
         </div>
         <div class="layui-form-item" style="text-align: center">
@@ -170,6 +171,84 @@
 
 <script src="${pageContext.request.contextPath}/resources/layui/layui.js"></script>
 <script type="text/javascript">
+    layui.use(['jquery', 'layer', 'form', 'table', 'laydate'],
+        function () {
+            var $ = layui.jquery;
+            var layer = layui.layer;
+            var form = layui.form;
+            var table = layui.table;
+            var dtree = layui.dtree;
+            var laydate = layui.laydate;
+            //根据出租单号查询
+            $("#doSearch").click(function () {
+                var rentid = $("#search_rentid").val();
+
+                $.post("${pageContext.request.contextPath}/check/checkRentExist.action", {rentid: rentid}, function (obj) {
+                    if (obj === "") { //出租单号不存在，返回值为null
+                        layer.msg("您输⼊的出租单号不存在，请更正后再查询");
+                        //隐藏数据表格
+                        $("#content").hide();
+                    } else {
+                        if (obj.rentflag == 1) {
+                            layer.msg("您输⼊的出租单号相关⻋辆已经归还，⽆需再⼊库");
+                            $("#content").hide();
+                        } else {
+                            //初始化表单数据和卡⽚⾯板数据
+                            initCheckFormData(rentid);
+                            $("#content").show();
+                        }
+                    }
+                })
+            });
+
+            //加载表单数据和 卡⽚⾯板数据
+            function initCheckFormData(rentid) {
+
+                $.post("${pageContext.request.contextPath}/check/initCheckFormData.action", {rentid: rentid}, function (obj) {
+                    //检查单
+                    var check = obj.check;
+                    form.val("checkFrm", check);
+                    //客户
+                    var customer = obj.customer;
+                    $("#customer_identity").html("身份证号:" + customer.identity);
+                    $("#customer_custname").html("客户姓名:" + customer.custname);
+                    $("#customer_sex").html("客户性别: " + (customer.sex == 1 ? '男' : '⼥'));
+                    $("#customer_address").html("客户地址:" + customer.address);
+                    $("#customer_phone").html("客户电话: " + customer.phone);
+                    $("#customer_career").html("客户职位:" + customer.career);
+                    //出租单
+                    var rent = obj.rent;
+                    $("#rent_rentid").html("出租单号: " + rent.rentid);
+                    $("#rent_price").html("出租价格: " + rent.price);
+                    $("#rent_begindate").html("起租时间: " + rent.begindate);
+                    $("#rent_returndate").html("还⻋时间:" + rent.returndate);
+                    $("#rent_opername").html("操作员: " + rent.opername);
+                    //⻋辆信息
+                    var car = obj.car;
+                    $("#car_carnumber").html("⻋辆号牌: " + car.carnumber);
+                    $("#car_cartype").html("⻋辆类型: " + car.cartype);
+                    $("#car_color").html("⻋辆颜⾊: " + car.color);
+                    $("#car_price").html("购买价格: " + car.price);
+                    $("#car_rentprice").html("出租价格: " + car.rentprice);
+                    $("#car_deposit").html("出租押⾦: " + car.deposit);
+                    $("#car_description").html("⻋辆描述:" + car.description);
+
+                    $("#car_carimg").attr("src", "${pageContext.request.contextPath}/file/downloadShowFile.action?path=" + car.carimg);
+                })
+            }
+
+            //保存
+            form.on("submit(doSubmit)", function () {
+                var params = $("#checkFrm").serialize();
+
+                $.post("${pageContext.request.contextPath}/check/saveCheck.action"
+                    , params, function (obj) {
+                        layer.msg(obj.msg);
+                        $("#content").hide();
+                    })
+                return false;
+            });
+        });
 
 </script>
 </body>

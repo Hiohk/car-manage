@@ -94,7 +94,9 @@
 <!-- 数据表格开始 -->
 <table class="layui-hide" id="checkTable" lay-filter="checkTable"></table>
 <div id="checkToolBar" style="display: none;">
-    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm layui-btn-radius" lay-event="deleteBatch">批量删除</button>
+    <button type="button" class="layui-btn layui-btn-danger layui-btn-sm layui-btn-radius" lay-event="deleteBatch">
+        批量删除
+    </button>
 </div>
 
 <div style="display: none;" id="checkBar">
@@ -123,13 +125,15 @@
             <div class="layui-inline">
                 <label class="layui-form-label">检查时间:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="checkdate" id="checkdate" lay-verify="required" placeholder="请输入起租时间" class="layui-input">
+                    <input type="text" name="checkdate" id="checkdate" lay-verify="required"
+                           placeholder="请输入起租时间" class="layui-input">
                 </div>
             </div>
             <div class="layui-inline">
                 <label class="layui-form-label">存在问题:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="problem" lay-verify="required" id="problem" placeholder="请输入存在的问题" class="layui-input">
+                    <input type="text" name="problem" lay-verify="required" id="problem" placeholder="请输入存在的问题"
+                           class="layui-input">
                 </div>
             </div>
         </div>
@@ -144,7 +148,8 @@
             <div class="layui-inline">
                 <label class="layui-form-label">赔付金额:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="paymoney" lay-verify="required"  placeholder="请输入车牌号" class="layui-input">
+                    <input type="text" name="paymoney" lay-verify="required" placeholder="请输入车牌号"
+                           class="layui-input">
                 </div>
             </div>
         </div>
@@ -152,7 +157,8 @@
             <div class="layui-inline">
                 <label class="layui-form-label">操作员:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="opername" id="opername" lay-verify="required" placeholder="请输入操作员" readonly="readonly" class="layui-input">
+                    <input type="text" name="opername" id="opername" lay-verify="required" placeholder="请输入操作员"
+                           readonly="readonly" class="layui-input">
                 </div>
             </div>
         </div>
@@ -172,7 +178,126 @@
 
 <script src="${pageContext.request.contextPath}/resources/layui/layui.js"></script>
 <script type="text/javascript">
+    var tableIns;
+    layui.use(['jquery', 'layer', 'form', 'table', 'laydate'],
+        function () {
+            var $ = layui.jquery;
+            var layer = layui.layer;
+            var form = layui.form;
+            var table = layui.table;
+            var laydate = layui.laydate;
+            //查询条件的
+            laydate.render({
+                elem: '#startTime',
+                type: 'datetime'
+            });
+            laydate.render({
+                elem: '#endTime',
+                type: 'datetime'
+            });
+            //编辑修改弹出层的
+            laydate.render({
+                elem: '#checkdate',
+                type: 'datetime'
+            });
+            //渲染数据表格
+            tableIns = table.render({
+                elem: '#checkTable' //渲染的⽬标对象
+                , url: '${pageContext.request.contextPath}/check/loadAllCheck.action' //数据接⼝
+                , title: '检查单数据表'//数据导出来的标题
+                , toolbar: "#checkToolBar" //表格的⼯具条
+                , height: 'full-260'
+                , cellMinWidth: 100 //设置列的最⼩默认宽度
+                , page: true //是否启⽤分⻚
+                , cols: [[ //列表数据
+                    {type: 'checkbox', fixed: 'left'}
+                    , {
+                        field: 'checkid', title: '检查单号', align:
+                            'center', width: '257'
+                    }
+                    , {
+                        field: 'rentid', title: '出租单号', align:
+                            'center', width: '260'
+                    }
+                    , {
+                        field: 'problem', title: '存在问题', align:
+                            'center', width: '105'
+                    }
+                    , {
+                        field: 'checkdesc', title: '问题描述', align:
+                            'center', width: '150'
+                    }
+                    , {
+                        field: 'paymoney', title: '赔付⾦额', align:
+                            'center', width: '100'
+                    }
+                    , {
+                        field: 'opername', title: '操作员', align:
+                            'center', width: '100'
+                    }
+                    , {
+                        field: 'checkdate', title: '检查时间', align:
+                            'center', width: '180'
+                    }
+                    , {
+                        field: 'createtime', title: '录⼊时间', align:
+                            'center', width: '180'
+                    }
+                    , {
+                        fixed: 'right', title: '操作', toolbar:
+                            '#checkBar', align: 'center', width: '130'
+                    }
+                ]]
+            });
+            //模糊查询
+            $("#doSearch").click(function () {
+                var params = $("#searchFrm").serialize();
+                tableIns.reload({
+                    url: "${pageContext.request.contextPath}/check/loadAllCheck.action?" + params,
+                    page: {curr: 1}
+                })
+            });
 
+            //监听⾏⼯具事件
+            table.on('tool(checkTable)', function (obj) {
+                var data = obj.data; //获得当前⾏数据
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+                if (layEvent === 'del') { //删除
+                    layer.confirm('真的删除【' + data.checkid + '】这个检查单么？', function (index) {
+                        //向服务端发送删除指令
+
+                        $.post("${pageContext.request.contextPath}/check/deleteCheck.action", {checkid: data.checkid}, function (res) {
+                            layer.msg(res.msg);
+                            //刷新数据表格
+                            tableIns.reload();
+                        })
+                    });
+                } else if (layEvent === 'edit') { //编辑
+                    //编辑，打开修改界⾯
+                    openUpdateCheck(data);
+                } else if (layEvent === 'deleteBatch') {
+                    var checkStatus = table.checkStatus('checkTable');
+                    var data = checkStatus.data;
+                    var params = "";
+                    $.each(data, function (i, item) {
+                        if (i == 0) {
+                            params += "ids=" + item.checkid;
+                        } else {
+                            params += "&ids=" + item.checkid;
+                        }
+                    });
+                    layer.confirm('真的要删除这些检查单吗？', function
+                        (index) {
+                        //向服务端发送删除指令
+
+                        $.post("${pageContext.request.contextPath}/check/deleteBatchCheck.action", params, function (res) {
+                            layer.msg(res.msg);
+                            tableIns.reload();
+                        })
+                    })
+                }
+            });
+        })
 </script>
 </body>
 </html>

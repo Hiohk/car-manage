@@ -98,7 +98,9 @@
     </insert>
 
     <delete id="deleteCustomer" parameterType="java.lang.String">
-        delete from bus_customer where identity = #{identity,jdbcType=VARCHAR}
+        delete
+        from bus_customer
+        where identity = #{identity,jdbcType=VARCHAR}
     </delete>
 
     <update id="updateCustomer" parameterType="com.hkgroup.bus.domain.Customer">
@@ -126,4 +128,10 @@
         where identity = #{identity,jdbcType=VARCHAR}
     </update>
 
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bus_customer
+        where identity = #{identity,jdbcType=VARCHAR}
+    </select>
 </mapper>

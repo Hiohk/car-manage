@@ -119,13 +119,15 @@
             <div class="layui-inline">
                 <label class="layui-form-label">起租时间:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="begindate" id="begindate" readonly="readonly" lay-verify="required" placeholder="请输入起租时间" class="layui-input">
+                    <input type="text" name="begindate" id="begindate" readonly="readonly" lay-verify="required"
+                           placeholder="请输入起租时间" class="layui-input">
                 </div>
             </div>
             <div class="layui-inline">
                 <label class="layui-form-label">还车时间:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="returndate" id="returndate" readonly="readonly" lay-verify="required" placeholder="请输入还车时间" class="layui-input">
+                    <input type="text" name="returndate" id="returndate" readonly="readonly" lay-verify="required"
+                           placeholder="请输入还车时间" class="layui-input">
                 </div>
             </div>
         </div>
@@ -133,14 +135,16 @@
             <div class="layui-inline">
                 <label class="layui-form-label">身份证号:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="identity" lay-verify="required" readonly="readonly" placeholder="请输入身份证号"
+                    <input type="text" name="identity" lay-verify="required" readonly="readonly"
+                           placeholder="请输入身份证号"
                            class="layui-input">
                 </div>
             </div>
             <div class="layui-inline">
                 <label class="layui-form-label">车牌号:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="carnumber" lay-verify="required" readonly="readonly"  placeholder="请输入车牌号" class="layui-input">
+                    <input type="text" name="carnumber" lay-verify="required" readonly="readonly"
+                           placeholder="请输入车牌号" class="layui-input">
                 </div>
             </div>
         </div>
@@ -148,13 +152,15 @@
             <div class="layui-inline">
                 <label class="layui-form-label">出租价格:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="price" lay-verify="required" placeholder="请输入出租价格" class="layui-input">
+                    <input type="text" name="price" lay-verify="required" placeholder="请输入出租价格"
+                           class="layui-input">
                 </div>
             </div>
             <div class="layui-inline">
                 <label class="layui-form-label">操作员:</label>
                 <div class="layui-input-inline">
-                    <input type="text" name="opername" id="opername" lay-verify="required" placeholder="请输入操作员" readonly="readonly" class="layui-input">
+                    <input type="text" name="opername" id="opername" lay-verify="required" placeholder="请输入操作员"
+                           readonly="readonly" class="layui-input">
                 </div>
             </div>
         </div>
@@ -174,8 +180,148 @@
 
 <script src="${pageContext.request.contextPath}/resources/layui/layui.js"></script>
 <script type="text/javascript">
+    var tableIns;
+    layui.use(['jquery', 'layer', 'form', 'table', 'laydate'],
+        function () {
+            var $ = layui.jquery;
+            var layer = layui.layer;
+            var form = layui.form;
+            var table = layui.table;
+            var laydate = layui.laydate;
+            //查询条件的
+            laydate.render({
+                elem: '#startTime',
+                type: 'datetime'
+            });
+            laydate.render({
+                elem: '#endTime',
+                type: 'datetime'
+            });
+            //编辑修改弹出层的
+            laydate.render({
+                elem: '#begindate',
+                type: 'datetime'
+            });
+            laydate.render({
+                elem: '#returndate',
+                type: 'datetime'
+            });
+            //渲染数据表格
+            tableIns = table.render({
+                elem: '#rentTable', //渲染的⽬标对象
+                url: '${pageContext.request.contextPath}/rent/loadAllRent.action', //数据接⼝
+                title: '出租单数据表',//数据导出来的标题
+                toolbar: "#rentToolBar", //表格的⼯具条
+                height: 'full-210',
+                cellMinWidth: 100, //设置列的最⼩默认宽度
+                page: true, //是否启⽤分⻚
+                cols: [[ //列表数据
+                    , {
+                        field: 'rentid', title: '出租单号', align: 'center', width: '259'
+                    }
+                    , {
+                        field: 'identity', title: '身份证号', align: 'center', width: '180'
+                    }
+                    , {
+                        field: 'carnumber', title: '⻋牌号', align: 'center', width: '105'
+                    }
+                    , {
+                        field: 'price', title: '出租价格', align: 'center', width: '90'
+                    }
+                    , {
+                        field: 'rentflag', title: '归还状态', align: 'center', width: '100', templet: function (d) {
+                            return d.rentflag == '1' ? '<font color = blue > 已归还 < /font>' : '<font color=red>未归还</font>';
+                        }
+                    }
+                    , {
+                        field: 'begindate', title: '起租时间', align: 'center', width: '170'
+                    }
+                    , {
+                        field: 'returndate', title: '还⻋时间', align: 'center', width: '170'
+                    }
+                    , {
+                        field: 'opername', title: '操作员', align: 'center', width: '120'
+                    }
+                    , {
+                        field: 'createtime', title: '录⼊时间', align: 'center', width: '180'
+                    }
+                    , {
+                        fixed: 'right', title: '操作', toolbar: '#rentBar', align: 'center', width: '200'
+                    }
+                ]],
+                done: function (data, curr, count) {
+                    //不是第⼀⻚时，如果当前返回的数据为0那么就返回上⼀⻚
+                    if (data.data.length == 0 && curr != 1) {
+                        tableIns.reload({
+                            page: {
+                                curr: curr - 1
+                            }
+                        })
+                    }
+                }
+            });
+            //模糊查询
+            $("#doSearch").click(function () {
+                var params = $("#searchFrm").serialize();
+                tableIns.reload({
+                    url: "${pageContext.request.contextPath}/rent/loadAllRent.action?" + params,
+                    page: {curr: 1}
+                })
+            });
 
+            //监听⾏⼯具事件
+            table.on('tool(rentTable)', function (obj) {
+                var data = obj.data; //获得当前⾏数据
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+                if (layEvent === 'del') { //删除
+                    layer.confirm('真的删除【' + data.rentid + '】这个出租单么？', function (index) {
+                        //向服务端发送删除指令
 
+                        $.post("${pageContext.request.contextPath}/rent/deleteRent.action", {rentid: data.rentid}, function (res) {
+                            layer.msg(res.msg);
+                            //刷新数据表格
+                            tableIns.reload();
+                        })
+                    });
+                } else if (layEvent === 'edit') { //编辑
+                    //编辑，打开修改界⾯
+                    openUpdateRent(data);
+                } else if (layEvent === 'exportRent') {//导出出租单
+
+                    window.location.href = "${pageContext.request.contextPath}/stat/exportRent.action?rentid=" + data.rentid;
+                }
+            });
+            var url;
+            var mainIndex;
+
+            //打开修改⻚⾯
+            function openUpdateRent(data) {
+                mainIndex = layer.open({
+                    type: 1,
+                    title: '修改出租单',
+                    content: $("#saveOrUpdateDiv"),
+                    area: ['750px', '420px'],
+                    success: function (index) {
+                        form.val("dataFrm", data);
+                        url =
+                            "${pageContext.request.contextPath}/rent/updateRent.action";
+                    }
+                });
+            }
+
+            //保存
+            form.on("submit(doSubmit)", function (obj) {
+                //序列化表单数据
+                var params = $("#dataFrm").serialize();
+                $.post(url, params, function (obj) {
+                    layer.msg(obj.msg);
+                    //关闭弹出层
+                    layer.close(mainIndex)
+                    //刷新数据 表格
+                    tableIns.reload();
+                })
+            });
+        });
 </script>
 </body>
 </html>

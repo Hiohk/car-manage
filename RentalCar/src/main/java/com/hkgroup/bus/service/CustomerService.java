@@ -12,4 +12,5 @@ public interface CustomerService {
     void deleteCustomer(String identity);
     void updateCustomer(CustomerVo customerVo);
     void deleteBatchCustomer(String[] identities);
+    Customer queryCustomerByIdentity(String identity);
 }

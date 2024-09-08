@@ -18,4 +18,5 @@ public interface CustomerMapper {
 
     void deleteCustomer(String identity);
     void updateCustomer(Customer customer);
+    Customer selectByPrimaryKey(String identity);
 }

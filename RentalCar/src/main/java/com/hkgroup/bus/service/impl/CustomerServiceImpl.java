@@ -54,4 +54,14 @@ public class CustomerServiceImpl implements CustomerService {
             this.deleteCustomer(identity);
         }
     }
+
+    /**
+     * 通过身份证号查询客户
+     * @param identity
+     * @return
+     */
+    @Override
+    public Customer queryCustomerByIdentity(String identity) {
+        return customerMapper.selectByPrimaryKey(identity);
+    }
 }
